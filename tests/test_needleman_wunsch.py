@@ -33,7 +33,12 @@ def check(reference):
     assert rtop == top
     assert rbottom == bottom
     # allow the student to be twice as slow as our own code
-    assert (duration / rduration) <= 2.
+    # however do this only on attempts longer than 0.1s 
+    # because otherwise measurement can be noisy and thus unreliable
+    if rduration >= 0.1:
+        print("checking performance")
+        assert (duration / rduration) <= 2.
+
 
 def test_refs():
     for reference in references:
