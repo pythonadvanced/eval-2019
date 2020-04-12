@@ -13,8 +13,14 @@ vous trouverez également des tests pour valider le code, que vous pouvez active
 python -m pytest
 ```
 
+ou encore si vous utilisez un shell bash
+
+```bash
+PYTHONPATH='.' pytest
+```
+
 # tester votre code
 
-pour tester votre propre code, installez-le za la place des sources (`codec.py` et `ruler.py`) et lancez la même commande de test.
+pour tester votre propre code, installez-le à la place des sources (`codec.py` et `ruler.py`) et lancez la même commande de test.
 
 
