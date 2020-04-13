@@ -2,7 +2,7 @@ from collections import Counter
 
 from graphviz import Digraph
 
-# clarifying our data structures
+# spelling out our data structures
 from typing import Dict
 
 FrequencyDict = Dict[str, int]
@@ -10,6 +10,16 @@ CodingMap =  Dict[str, str]
 
 
 class Node:
+    """
+    a Node instance models a node in the Huffman binary tree; 
+    it can be a leaf or a binary tree
+    
+    that is to say, it either has a 'char' attribute, 
+    *or* it has both a left and right nodes
+    
+    the 'counts' attribute contains the number of occurrences of all characters
+    in or below this node
+    """
 
     def __init__(self, *, char=None, left=None, right=None, counts=0):
         # either it's a leaf, or it has 2 sons
@@ -25,6 +35,8 @@ class Node:
 
 
     def __repr__(self):
+        # we don't keep the chars of the nodes below, 
+        # but we can easily compute them for making repr() clearer
         return (
             f"( {repr(self.left)} ) ^ ( {repr(self.right)} )={self.counts}" if self.left
             else f"['{self.char}'={self.counts}]" 
@@ -32,11 +44,16 @@ class Node:
 
 
     def coding_map(self) -> CodingMap:
+        """
+        returns a dictionary single-character -> code 
+        code being a str with 0s and 1s
+        """
         map = {}
         self._coding_map('', map)
         return map
 
 
+    # the internal recursive scan that computes the coding map
     def _coding_map(self, prefix, map):
         if self.char:
             map[self.char] =  prefix
@@ -46,6 +63,13 @@ class Node:
 
 
 class TreeBuilder:
+    """
+    a TreeBuilder object allows to compute a Huffman binary tree
+    
+    it can be created from either a text, or a precomputed frequency dictionary
+    
+    in the former case, a frequency dictionary is computed from the text
+    """
     
     def __init__(self, text=None, frequency_dict: FrequencyDict = None):
         # give exactly one argument
@@ -56,6 +80,10 @@ class TreeBuilder:
 
 
     def tree(self):
+        """
+        returns a Node object that materializes the Huffman tree
+        associated to that frequency dictionary
+        """
         freq_dict = self.frequency_dict
         nodes = [Node(char=k, counts=v) for (k, v) in freq_dict.items()]
         if len(nodes) <= 1:
@@ -70,12 +98,16 @@ class TreeBuilder:
         
 
 class Codec:
-    
+    """
+    a Codec object is created from a provided Huffman tree
+    it then allows to encode or decode any string
+    """
     def __init__(self, tree):
         self.tree = tree
         self.map = tree.coding_map()
 
     def encode(self, text):
+        # encoding is strightforward
         result = ""
         for char in text:
             if char not in self.map:
@@ -84,48 +116,23 @@ class Codec:
         return result
 
 
-    def decode(self, text):
-        decoding = {v: k for k, v in self.map.items()}
+    def decode(self, encoded):
+        # reverse coding map
+        decoding = {code: char for char, code in self.map.items()}
+        # compute max length of a code
+        # this is mainly to issue errors as early as possible
         max_len = max(len(k) for k in decoding)
         result = ""
-        while text:
+        while encoded:
+            # check if a known code can be found at this point in the code
             for size in range(1, max_len+1):
-                chunk = text[:size]
+                chunk = encoded[:size]
                 if chunk in decoding:
                     result += decoding[chunk]
-                    text = text[size:]
+                    encoded = encoded[size:]
                     break
+            # reminder: else after for
+            #  runs when no 'break' has been found in the for loop
             else:
-                raise ValueError(f"cannot decode text at this point: {text}")
+                raise ValueError(f"cannot decode at this point: {encoded}")
         return result
-        
-
-# -----
-# one example illustrated for free by wikipedia
-# https://en.wikipedia.org/wiki/Huffman_coding#/media/File:Huffman_coding_visualisation.svg
-samples = [
-    ('huffman1', "a dead dad ceded a bad babe a beaded abaca bed"),
-    ('huffman2', "this is an example of a huffman tree"),
-]
-
-
-def test(text):
-    builder = TreeBuilder(text)
-    tree = builder.tree()
-    codec = Codec(tree)
-    encoded = codec.encode(text)
-    decoded = codec.decode(encoded)
-    print(f"{text} -> {encoded}")
-    # bonus
-    print(codec.map)
-
-    if decoded == text:
-        print(f"OK - encoded={encoded}")
-    else:
-        print(f"KO(1) encoded={encoded}")
-        print(f"KO(2) decoded={decoded}")
-
-
-if __name__ == '__main__':
-    for _, sample in samples:
-        test(sample)
