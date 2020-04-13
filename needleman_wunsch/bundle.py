@@ -6,7 +6,7 @@ from pathlib import Path
 def do_one_couple(line1, line2, index):
     ruler = Ruler(line1, line2)
     ruler.compute()
-    print(f"===== exemple {index}: distance={ruler.distance}")
+    print(f"===== exemple # {index} - distance = {ruler.distance}")
     report1, report2 = ruler.report()
     print(report1)            
     print(report2)
