@@ -156,7 +156,7 @@ class Ruler:
             # in the middle of the matrix, we need to see which 
             # of the 3 directions we've been coming from
             elif c == costs[i-1][j-1] + substitution_cost(dna1[i-1], dna2[j-1]):  # substitution
-                # is it a trus substitution (does it need to be red)
+                # is it a true substitution (does it need to be red)
                 same = dna1[i-1] == dna2[j-1]
                 i -= 1
                 r1.append(outliner.outline(dna1[i], same))

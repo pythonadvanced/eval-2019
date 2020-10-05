@@ -1,6 +1,7 @@
 from collections import Counter
 
-from graphviz import Digraph
+# only useful for displaying a sample in the notebook
+#from graphviz import Digraph
 
 # spelling out our data structures
 from typing import Dict
